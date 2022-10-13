@@ -3,7 +3,7 @@ const User = require("../src/Models/userModel");
 
 //Handling errors
 exports.handleErrors = (err) => {
-  console.log(err.message, err.code);
+  // console.log(err.message, err.code);
   console.log(err);
   let errors = {
     name: "",

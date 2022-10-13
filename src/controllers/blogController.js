@@ -3,7 +3,7 @@ const blogModel = require("../Models/blogModel");
 const User = require("../Models/userModel");
 
 exports.createBlog = async (request, response) => {
-  const { id } = request.headers;
+  const { id } = request.params;
   const findUser = await User.findById(id);
   const { title, article, author, images } = request.body;
   if (findUser) {
@@ -24,13 +24,13 @@ exports.createBlog = async (request, response) => {
 };
 
 exports.updateBlog = async (request, response) => {
-  const { id } = request.headers;
+  const { id } = request.params;
   const findBlog = await blogModel.findById(id);
   console.log(findBlog);
   findBlog.title = request.body.title;
   findBlog.article = request.body.article;
   await findBlog.save();
-  return response.status(201).send({
+  return response.status(200).send({
     status: true,
     message: "Blog has been updated successfully",
     updatedBlog: findBlog,
@@ -50,7 +50,7 @@ exports.deleteBlog = async (request, response) => {
   const { id } = request.query;
   const findBlog = await blogModel.findByIdAndDelete(id);
   if (findBlog) {
-    return response.status(201).send({
+    return response.status(200).send({
       status: true,
       message: "Blog deleted successfully",
     });

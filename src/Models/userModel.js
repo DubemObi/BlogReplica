@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { isEmail } = require("validator");
 
 const userSchema = mongoose.Schema({
   name: {
@@ -9,17 +10,13 @@ const userSchema = mongoose.Schema({
   email: {
     type: String,
     required: [true, "Please enter an email"],
-    match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      "Please enter a valid email",
-    ],
+    validate: [isEmail, "Please enter a valid email"],
     unique: true,
     lowercase: true,
   },
   password: {
     type: String,
     required: [true, "Please enter password "],
-    // minlength: [6, "Minimum password length is 6 characters "],
     match: [
       /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/,
       "Minimum password length is 6 characters and maximum is 16 characters and should contain Upper and lowercase and Special characters ",
@@ -40,6 +37,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: [true, "Please enter image URL "],
   },
+  role: {
+    type: String,
+    default: "user",
+    enum: ["user", "blogger", "admin"],
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -49,16 +51,16 @@ userSchema.pre("save", async function (next) {
 });
 
 //static method login user
-userSchema.statics.login = async function (email, password) {
-  const findUser = await this.findOne({ email });
-  if (findUser) {
-    const auth = await bcrypt.compare(password, findUser.password);
-    if (auth) {
-      return findUser;
-    }
-    throw Error("Incorrect password");
-  }
-  throw Error("Incorrect email");
-};
+// userSchema.statics.login = async function (email, password) {
+//   const findUser = await this.findOne({ email });
+//   if (findUser) {
+//     const auth = await bcrypt.compare(password, findUser.password);
+//     if (auth) {
+//       return findUser;
+//     }
+//     throw Error("Incorrect password");
+//   }
+//   throw Error("Incorrect email");
+// };
 
 module.exports = mongoose.model("user", userSchema);

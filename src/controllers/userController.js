@@ -1,15 +1,12 @@
 const User = require("../Models/userModel");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const ErrorHandler = require("../../utils/errorHandler");
+const { handleErrors } = require("../../utils/errorHandler");
+const bcrypt = require("bcrypt");
+const { createToken } = require("../middlewares/authMiddlieware");
 
 //Generating JWT
 const maxAge = 3 * 24 * 60 * 60;
-const createToken = (id) => {
-  return jwt.sign({ id }, "dubem secret string", {
-    expiresIn: maxAge,
-  });
-};
 
 //CreateUser Account
 exports.createUser = async (request, response) => {
@@ -21,23 +18,35 @@ exports.createUser = async (request, response) => {
     await user.save();
     return response.status(201).send({
       status: true,
-      message: "Account has been  created successfully",
+      message: "Account has been created successfully",
       newUser: user,
       AccessToken: token,
     });
   } catch (error) {
-    const err = ErrorHandler.handleErrors(error);
-    return response.status(404).json({ err });
+    const err = handleErrors(error);
+    return response.status(400).json({ err });
   }
 };
 
 exports.userLogin = async (request, response) => {
   const { email, password } = request.body;
   try {
-    const user = await User.login(email, password);
-    const token = createToken(user._id);
-    response.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    response.status(200).json({ user });
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+      response.status(400).json({ message: "Invalid details" });
+    } else {
+      const checkPassword = await bcrypt.compare(password, findUser.password);
+      if (!checkPassword) {
+        response.status(400).json({ message: "Invalid details" });
+      } else {
+        const token = createToken(findUser._id);
+        response.cookie("jwt", token, {
+          httpOnly: true,
+          maxAge: maxAge * 1000,
+        });
+        response.status(200).json({ Id: findUser._id, email: findUser.email });
+      }
+    }
   } catch (err) {
     const error = handleErrors(err);
     response.status(400).json({ error });

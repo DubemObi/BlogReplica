@@ -5,10 +5,9 @@ const app = express();
 app.use(express.json());
 const router = express.Router();
 
-const { createUser } = UserController;
-router.route("/user").post(createUser);
+const { createUser, userLogin } = UserController;
+router.post("/signup", createUser);
 
-const { userLogin } = UserController;
-router.route("/login").post(userLogin);
+router.post("/login", userLogin);
 
 module.exports = router;
