@@ -8,14 +8,12 @@ let id;
 
 describe("Blog routes", () => {
   it("Create a blog", async () => {
-    const response = await request(app)
-      .post("/users/blog/632f0a3005c83323fa74acd1")
-      .send({
-        title: "Blog Title",
-        article: "The rich dad, poor dad explanation",
-        author: "Robert Kyosaki",
-        images: "ImageURL",
-      });
+    const response = await request(app).post("/users/blog").send({
+      title: "Blog Title",
+      article: "The rich dad, poor dad explanation",
+      author: "Robert Kyosaki",
+      images: "ImageURL",
+    });
     id = response.body.newBlog._id;
     expect(response.status).toBe(201);
     expect(response.body).toEqual(

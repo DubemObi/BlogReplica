@@ -3,20 +3,22 @@ const mongoose = require("mongoose");
 const blogSchema = mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: [true, "Enter the title of your article"],
+    unique: true,
   },
   article: {
     type: String,
-    required: true,
+    required: [true, "Write your article"],
     max: 600,
   },
   author: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: [true, "Enter a valid id"],
   },
   images: {
     type: String,
-    required: true,
+    required: [true, "Enter your image URL"],
   },
 });
 

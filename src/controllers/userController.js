@@ -54,17 +54,54 @@ exports.userLogin = async (request, response) => {
 };
 
 exports.updateUser = async (request, response) => {
-  const { id } = request.query;
-  const findUser = await User.findById(id);
-  findUser.username = request.body.username;
-  findUser.email = request.body.email;
-  findUser.password = request.body.password;
-  await findUser.save();
-  return response.status(200).send({
-    status: true,
-    message: "Account has been updated successfully",
-    updatedUser: findUser,
-  });
+  try {
+    const { id } = request.query;
+    const findUser = await User.findById(id);
+    findUser.username = request.body.username;
+    findUser.email = request.body.email;
+    findUser.password = request.body.password;
+    await findUser.save();
+    return response.status(200).send({
+      status: true,
+      message: "Account has been updated successfully",
+      updatedUser: findUser,
+    });
+  } catch (err) {
+    const error = handleErrors(err);
+    response.status(400).json({ error });
+  }
+};
+
+exports.getUser = async (request, response) => {
+  try {
+    const id = request.params.id;
+    const findOneUser = await User.findById(id);
+
+    if (!findOneUser) {
+      return response.status(404).send({
+        status: false,
+        message: "User not found",
+      });
+    } else {
+      return response.status(200).send({
+        status: true,
+        message: "User found",
+        User: { username: findOneUser.username, email: findOneUser.email },
+      });
+    }
+  } catch (err) {
+    if (err.path === "_id") {
+      return response.status(401).send({
+        status: false,
+        message: "Invalid ID",
+      });
+    } else {
+      return response.status(500).send({
+        status: false,
+        message: "Server Error",
+      });
+    }
+  }
 };
 
 exports.getAllUSers = async (request, response) => {
